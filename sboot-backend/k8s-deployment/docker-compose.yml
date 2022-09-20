@@ -1,0 +1,62 @@
+version: '3.3'
+services:
+  postgresdb:
+    container_name: postgresdb_cnt
+    image: postgres:13.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: dbmtppoc
+    ports:
+      - "5432:5432"
+    volumes:
+      - "pgdata:/var/lib/postgresql/data/pgdata"
+    networks:
+      - network_docker
+  pgadmin:
+    container_name: pgadmin4_cnt
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    networks:
+      - network_docker
+  backend:
+    container_name: backend_cnt
+    image: sboot-backend:1.0.0
+    restart: always
+    build:
+      context: .
+    depends_on: 
+      - postgresdb
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/dbmtppoc
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: secret
+    ports:
+      - "8080:8092"
+    networks:
+      - network_docker
+  frontend:
+    container_name: frontend_cnt
+    image: personas-frontend:1.0.0
+    restart: always
+    environment: 
+      API_URL: backend
+    build:
+      context: .
+    depends_on: 
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - network_docker
+volumes:
+  pgdata:  
+networks:
+  network_docker:
+    external: true 

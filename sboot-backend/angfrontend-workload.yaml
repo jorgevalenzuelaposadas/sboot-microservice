@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angfrontend
+spec:
+  selector:
+    matchLabels:
+      app: angfrontend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: angfrontend
+    spec:
+      containers:
+        - name: angfrontend
+          image: personas-frontend:1.0.0
+          env:
+          - name: API_URL
+            value: "http://192.168.49.2:30365"
+          - name: DEBUG
+            value: "false"
+          imagePullPolicy: "Never"
+          ports:
+            - containerPort: 80 
+              name: angfrontendport

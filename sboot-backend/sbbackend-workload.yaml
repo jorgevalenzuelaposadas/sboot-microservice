@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sbbackend
+spec:
+  selector:
+    matchLabels:
+      app: sbbackend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: sbbackend
+    spec:
+      containers:
+        - name: sbbackend
+          image: sboot-backend:1.0.0
+          env:
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:postgresql://192.168.49.2:30432/dbmtppoc
+          - name: SPRING_DATASOURCE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: my-backend-secret
+                key: SPRING_DATASOURCE_USERNAME
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-backend-secret
+                key: SPRING_DATASOURCE_PASSWORD
+          imagePullPolicy: "Never"
+          ports:
+            - containerPort: 8092 
+              name: sbbackendport
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-backend-secret
+data:
+  SPRING_DATASOURCE_USERNAME: YWRtaW4=
+  SPRING_DATASOURCE_PASSWORD: c2VjcmV0
+
